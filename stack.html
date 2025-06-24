@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Software Development Steps Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background-color: #f1f1f1;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column; /* Display boxes vertically */
+      align-items: center;
+      margin: auto;
+      width: 90%;
+      max-width: 900px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .step-box {
+      padding: 15px;
+      margin: 10px;
+      background-color: #765540;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      line-height: 30px;
+      cursor: grab;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .step-box:hover {
+      background-color: #636578;
+    }
+
+    .dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .button-container {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 0 10px;
+      background-color: #4183D7;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #336EAB;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container" ondragover="allowDrop(event)" ondrop="drop(event)">
+    <h1>Arrange the Software Development Steps</h1>
+    <!-- Randomly generated boxes will be appended here -->
+  </div>
+  <div class="button-container">
+    <button onclick="showCorrectOrder()">Show Correct Order</button>
+    <button onclick="checkOrder()">Check Order</button>
+  </div>
+  <script>
+    // Define step names
+    var stepNames = [
+      "Requirement Analysis",
+      "Design",
+      "Implementation",
+      "Testing",
+      "Deployment",
+      "Maintenance"
+    ];
+
+    // Calculate step sizes dynamically based on the number of steps
+    var totalSteps = stepNames.length;
+    var maxStepSize = 100;
+    var minStepSize = 10;
+    var stepSizes = Array.from({ length: totalSteps }, (_, i) => maxStepSize - (i * ((maxStepSize - minStepSize) / totalSteps)));
+
+    // Create step objects with name, color, and size
+    var steps = stepNames.map((name, index) => ({ name: name, color: getRandomColor(), size: stepSizes[index] }));
+
+    // Shuffle steps array
+    shuffle(steps);
+
+    // Append randomly generated steps to container
+    var container = document.getElementById("container");
+    steps.forEach(function(step, index) {
+      var stepBox = document.createElement("div");
+      stepBox.className = "step-box";
+      stepBox.textContent = step.name;
+      stepBox.style.backgroundColor = step.color; // Set background color
+      stepBox.dataset.order = index; // Set order attribute
+      stepBox.dataset.size = step.size; // Set size attribute
+      stepBox.draggable = true; // Enable dragging
+      container.appendChild(stepBox);
+    });
+
+    // Shuffle function
+    function shuffle(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Generate random color
+    function getRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    // Drag and drop functions
+    var dragged;
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    container.addEventListener('dragstart', drag);
+    container.addEventListener('drop', drop);
+
+    function drag(event) {
+      dragged = event.target;
+      event.target.classList.add("dragging");
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      var target = event.target;
+      if (target.classList.contains("step-box")) {
+        // Swap positions
+        var tempOrder = target.dataset.order;
+        target.dataset.order = dragged.dataset.order;
+        dragged.dataset.order = tempOrder;
+        target.parentNode.insertBefore(dragged, target.nextSibling);
+      }
+      dragged.classList.remove("dragging");
+    }
+
+    // Show correct order function
+    function showCorrectOrder() {
+      // Sort step boxes by size and append to container
+      var sortedSteps = steps.slice().sort((a, b) => a.size - b.size);
+      sortedSteps.forEach(function(step, index) {
+        var stepBox = container.children[index];
+        stepBox.textContent = step.name;
+        stepBox.style.backgroundColor = step.color;
+        stepBox.dataset.order = index;
+        stepBox.dataset.size = step.size;
+      });
+    }
+
+    // Check order function
+    function checkOrder() {
+      var stepBoxes = document.querySelectorAll(".step-box");
+      var isCorrectOrder = true;
+      stepBoxes.forEach(function(stepBox, index) {
+        if (parseInt(stepBox.dataset.order) !== index) {
+          isCorrectOrder = false;
+        }
+      });
+      if (isCorrectOrder) {
+        alert("The steps are in the correct order!");
+      } else {
+        alert("The steps are not in the correct order.");
+      }
+    }
+  </script>
+</body>
+</html>

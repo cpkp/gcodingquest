@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Programming Sorting Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: rgba(94, 186, 165, 1);
+            color: white;
+            font-family: "Raleway", sans-serif;
+            font-size: 16px;
+            font-weight: 100;
+        }
+
+        h1 {
+            font-weight: 100;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-top: 20px; /* Add margin to center the title vertically */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .box {
+            width: 200px;
+            background-color: rgba(195, 213, 209, 0.5);
+            border-radius: 10px;
+            margin: 0 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            min-height: 200px; /* Set a minimum height for the box */
+            overflow: auto; /* Add scrollbars if content overflows */
+            animation: none; /* Remove animation initially */
+        }
+
+        .box:hover {
+            background-color: rgba(195, 213, 209, 0.8);
+        }
+
+        .box.drop-target {
+            background-color: rgba(195, 213, 209, 1);
+        }
+
+        .items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .item {
+            width: 100px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+            margin-bottom: 10px;
+            animation: none; /* Remove animation initially */
+        }
+
+        #win-message {
+            display: none; /* Hide the win message initially */
+            text-align: center;
+            color: black;
+            font-size: 48px;
+            font-family: "Raleway", sans-serif;
+            margin-top: 20px; /* Add margin to separate from the boxes */
+            opacity: 0; /* Hide initially */
+            animation: win-message-show 1s ease forwards; /* Animation to show win message */
+        }
+
+        @keyframes win-message-show {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes item-broken {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        @keyframes box-title-settle {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>C Programming Sorting Game</h1>
+
+    <div class="container">
+        <div id="datatypes-box" class="box drop-target">
+            <h2>Data Types</h2>
+        </div>
+        <div id="controlstatements-box" class="box drop-target">
+            <h2>Control Statements</h2>
+        </div>
+        <div id="functions-box" class="box drop-target">
+            <h2>Functions</h2>
+        </div>
+    </div>
+
+    <div class="items">
+        <div class="item" draggable="true" data-category="datatypes">int</div>
+        <div class="item" draggable="true" data-category="datatypes">char</div>
+        <div class="item" draggable="true" data-category="datatypes">float</div>
+        <div class="item" draggable="true" data-category="datatypes">double</div>
+        <div class="item" draggable="true" data-category="controlstatements">if</div>
+        <div class="item" draggable="true" data-category="controlstatements">else</div>
+        <div class="item" draggable="true" data-category="controlstatements">while</div>
+        <div class="item" draggable="true" data-category="controlstatements">for</div>
+        <div class="item" draggable="true" data-category="functions">printf</div>
+        <div class="item" draggable="true" data-category="functions">scanf</div>
+        <div class="item" draggable="true" data-category="functions">main</div>
+        <!-- Add more items as needed -->
+    </div>
+
+    <div id="win-message">You win!</div>
+
+    <script>
+        
+        
+             /*
+
+
+
+cop paste to all page start
+
+
+
+
+
+*/
+      
+      
+       // Function to call the addscore.php script in the background
+    const callAddScorePHP = () => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                // Successful response from server
+              //  alert("Successfully added score!");
+            } else {
+                // Error response from server
+              //  alert("Error: Unable to add score.");
+            }
+        }
+    };
+
+    xhr.onerror = function () {
+        console.error('Error occurred during XMLHttpRequest:', xhr.statusText);
+        alert('An error occurred. Please try again later.');
+    };
+
+    const score = 100; // Replace `yourVariableName` with your actual variable name
+        
+       //if the the score is directly from a varaiable use this and no need of another const and the score in url replaced by the varaiable name example is given  const url = '../../../scoreadd.php?score=' + encodeURIComponent(totalCongrats);
+        
+        
+        
+        
+    const url = '../../../scoreadd.php?score=' + encodeURIComponent(score);
+       // 4 level / /  / / for file type game.for direct html or php use only 3 / / /level.
+    xhr.open('GET', url, true);
+    xhr.send();
+};
+
+/*
+
+
+
+cop paste to all page end
+
+
+
+
+
+*/
+        
+        
+        const items = document.querySelectorAll('.item');
+        const dataTypesBox = document.getElementById('datatypes-box');
+        const controlStatementsBox = document.getElementById('controlstatements-box');
+        const functionsBox = document.getElementById('functions-box');
+        const winMessage = document.getElementById('win-message');
+        let gameWon = false;
+
+        let sortedItems = 0;
+
+        // Shuffle the items array
+        function shuffleItems() {
+            const parent = document.querySelector('.items');
+            const itemsArray = Array.from(parent.children);
+            itemsArray.forEach(item => parent.removeChild(item));
+            shuffle(itemsArray);
+            itemsArray.forEach(item => parent.appendChild(item));
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function handleWin() {
+            if (!gameWon) {
+                winMessage.style.display = 'block';
+                gameWon = true;
+                animateItems();
+                animateBoxTitles();
+                
+                
+                /*
+
+
+
+cop paste to all page start
+
+
+
+
+
+*/
+       //this   
+          
+          callAddScorePHP();
+          
+          
+      
+          
+          /*
+
+
+
+cop paste to all page end
+
+
+
+
+
+*/
+ 
+                
+            }
+        }
+
+        function animateItems() {
+            items.forEach(item => {
+                item.style.animation = 'item-broken 1s forwards';
+            });
+        }
+
+        function animateBoxTitles() {
+            const boxTitles = document.querySelectorAll('.box h2');
+            boxTitles.forEach(title => {
+                title.style.animation = 'box-title-settle 1s forwards';
+            });
+        }
+
+        function adjustBoxHeight(box) {
+            const boxContent = box.querySelector('.items');
+            const boxHeight = boxContent.getBoundingClientRect().height;
+            box.style.height = boxHeight + 'px';
+        }
+
+        items.forEach(item => {
+            item.addEventListener('dragstart', dragStart);
+            item.addEventListener('dragend', dragEnd);
+        });
+
+        dataTypesBox.addEventListener('dragover', dragOver);
+        dataTypesBox.addEventListener('dragenter', dragEnter);
+        dataTypesBox.addEventListener('dragleave', dragLeave);
+        dataTypesBox.addEventListener('drop', drop);
+
+        controlStatementsBox.addEventListener('dragover', dragOver);
+        controlStatementsBox.addEventListener('dragenter', dragEnter);
+        controlStatementsBox.addEventListener('dragleave', dragLeave);
+        controlStatementsBox.addEventListener('drop', drop);
+
+        functionsBox.addEventListener('dragover', dragOver);
+        functionsBox.addEventListener('dragenter', dragEnter);
+        functionsBox.addEventListener('dragleave', dragLeave);
+        functionsBox.addEventListener('drop', drop);
+
+        function dragStart() {
+            this.classList.add('dragging');
+        }
+
+        function dragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function dragEnter(e) {
+            e.preventDefault();
+            this.classList.add('hovered');
+        }
+
+        function dragLeave() {
+            this.classList.remove('hovered');
+        }
+
+        function drop() {
+            const draggable = document.querySelector('.dragging');
+            const category = draggable.getAttribute('data-category');
+            if (this.id === category + '-box') {
+                this.appendChild(draggable);
+                draggable.classList.add('fixed');
+                sortedItems++;
+                if (sortedItems === items.length) {
+                    handleWin();
+                }
+            }
+            this.classList.remove('hovered');
+            adjustBoxHeight(this); // Adjust box height after dropping item
+        }
+
+        // Shuffle items on page load
+        window.addEventListener('load', () => {
+            shuffleItems();
+        });
+    </script>
+</body>
+</html>
